@@ -1,7 +1,7 @@
 # QTrayToolBar
-Provides a replacement for the custom toolbar functionality that was removed in Windows 11
-提供Windows 11中删除的自定义工具栏功能的替换
-指定一个目录产生菜单项，代替以前的Quick Launch
+Provides a replacement for the custom toolbar functionality that was removed in Windows 11 
+提供Windows 11中删除的自定义工具栏功能的替换 
+指定一个目录产生菜单项，代替以前的Quick Launch 
 
 # 与github上的TrayToolBar区别
 * TrayToolBar使用C#编写，QTrayToolBar基于Qt，使用C++编写，主要是我不会C#
