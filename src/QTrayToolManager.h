@@ -2,7 +2,7 @@
 //	filename: 	F:\mygit\QTrayToolbar\src\QTrayToolManager.h
 //	desc:		
 //
-//	created:	hying 15:2:2025   14:28
+//	created:	wangdaye 15:2:2025   14:28
 //********************************************************************
 #ifndef QTrayToolManager_h__
 #define QTrayToolManager_h__

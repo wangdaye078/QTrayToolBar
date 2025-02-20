@@ -2,7 +2,7 @@
 //	filename: 	F:\mygit\QTrayToolbar\src\QtTrayToolControl.h
 //	desc:		
 //
-//	created:	hying 16:2:2025   20:19
+//	created:	wangdaye 16:2:2025   20:19
 //********************************************************************
 #ifndef QtTrayToolControl_h__
 #define QtTrayToolControl_h__

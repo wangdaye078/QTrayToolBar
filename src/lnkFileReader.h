@@ -2,7 +2,7 @@
 //	filename: 	F:\mygit\QTrayToolbar\src\lnkFileReader.h
 //	desc:		
 //
-//	created:	hying 16:2:2025   10:40
+//	created:	wangdaye 16:2:2025   10:40
 //********************************************************************
 #ifndef lnkFileReader_h__
 #define lnkFileReader_h__

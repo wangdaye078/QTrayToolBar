@@ -2,7 +2,7 @@
 //	filename: 	F:\mygit\QTrayToolbar\src\QTrayToolSetupDialog.h
 //	desc:		
 //
-//	created:	hying 17:2:2025   13:06
+//	created:	wangdaye 17:2:2025   13:06
 //********************************************************************
 #ifndef QTrayToolSetupDialog_h__
 #define QTrayToolSetupDialog_h__

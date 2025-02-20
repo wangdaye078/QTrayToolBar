@@ -2,7 +2,7 @@
 //	filename: 	F:\mygit\QTrayToolbar\src\basicDefine.h
 //	desc:		
 //
-//	created:	hying 20:2:2025   12:54
+//	created:	wangdaye 20:2:2025   12:54
 //********************************************************************
 #ifndef basicDefine_h__
 #define basicDefine_h__

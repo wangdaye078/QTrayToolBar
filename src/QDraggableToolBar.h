@@ -2,7 +2,7 @@
 //	filename: 	F:\mygit\QTrayToolbar\src\QDraggableToolBar.h
 //	desc:		
 //
-//	created:	hying 19:2:2025   23:58
+//	created:	wangdaye 19:2:2025   23:58
 //********************************************************************
 #ifndef QDraggableToolBar_h__
 #define QDraggableToolBar_h__

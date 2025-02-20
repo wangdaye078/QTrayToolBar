@@ -2,7 +2,7 @@
 //	filename: 	F:\mygit\QTrayToolbar\src\struct.h
 //	desc:		
 //
-//	created:	hying 18:2:2025   10:32
+//	created:	wangdaye 18:2:2025   10:32
 //********************************************************************
 #ifndef struct_h__
 #define struct_h__
@@ -15,8 +15,6 @@ public:
 	QString name;
 	QString path;
 	QPixmap icon;
-	//QAction* action;
-	//QTrayToolMenu* parentMenu;
 	QList<TLnkFile*> subLnk;
 
 	TLnkFile() {};
@@ -45,7 +43,7 @@ public:
 	}
 	friend QDataStream& operator>>(QDataStream& _stream, TLnkFile& _lnkFile)
 	{
-		// 将数据输入流对象中
+		// 将流对象中输出数据
 		_stream >> _lnkFile.name;
 		_stream >> _lnkFile.path;
 		_stream >> _lnkFile.icon;
