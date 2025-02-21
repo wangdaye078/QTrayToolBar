@@ -6,8 +6,9 @@
 #include <commctrl.h>
 #include <Setupapi.h>
 
-QPixmap getPixmapFromGUID(const QString& _guid)
+QPixmap getPixmapFromGUID(const QString& _guid, int& _iIcon)
 {
+	_iIcon = 0;
 	QPixmap t_pixmap;
 	GUID t_guid = GUID(QUuid(_guid));
 	HICON t_hicon;
@@ -16,6 +17,7 @@ QPixmap getPixmapFromGUID(const QString& _guid)
 	{
 		t_pixmap = QtWin::fromHICON(t_hicon);
 		DestroyIcon(t_hicon);
+		_iIcon = t_MiniIconIndex;
 	}
 	return t_pixmap;
 }

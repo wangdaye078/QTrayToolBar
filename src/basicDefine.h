@@ -28,7 +28,7 @@
 #define UTF8ToQString(x)     QString::fromUtf8((x))
 
 
-extern QPixmap getPixmapFromGUID(const QString& _guid);
+extern QPixmap getPixmapFromGUID(const QString& _guid, int& _iIcon);
 extern QPixmap getPixmapFromFile(const QString& _path);
 extern QRect getToolbarRect(void);
 extern void regWriteBinary(const QString& _subkey, const QString& _valueName, const QByteArray& _value);

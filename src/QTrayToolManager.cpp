@@ -162,8 +162,8 @@ void QTrayToolManager::onFoldersChanged_slot(const QMap<QString, TFolderInfo>& _
 }
 void QTrayToolManager::setAutoStartup_slot(bool _autoRun)
 {
-	if (_autoRun)
-		QFile(QCoreApplication::applicationFilePath()).link(m_startupLnkPath);
-	else
+	if (!_autoRun)
 		QFile(m_startupLnkPath).remove();
+	else if (!QFileInfo(m_startupLnkPath).exists())
+		QFile(QCoreApplication::applicationFilePath()).link(m_startupLnkPath);
 }

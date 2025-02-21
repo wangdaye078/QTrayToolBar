@@ -125,6 +125,7 @@ void QTrayToolSetupDialog::CreateControl(void)
 
 	m_TB_applyIconOrder = new QToolButton(this);
 	m_TB_applyIconOrder->setObjectName(QString::fromUtf8("m_TB_applyIconOrder"));
+	m_TB_applyIconOrder->setMinimumSize(QSize(50, 0));
 
 	t_mainLayout->addWidget(m_TB_applyIconOrder, 4, 5, 1, 2);
 
@@ -207,6 +208,29 @@ QByteArray QSettingReadBinary(const QSettings& _settings, const QString& _key)
 	QString t_sTmp = _settings.value(_key, QString()).toString();
 	return QByteArray((const char*)t_sTmp.utf16(), t_sTmp.length() * 2);
 }
+void loadPixmapFromPNG(QPixmap& _pixmap, const QByteArray& _data)
+{
+	_pixmap.loadFromData(_data, "PNG");
+	//有的系统图像只有几条白线，实在看不清楚，所以把这种图像的白线变成黑线
+	bool t_onlyWhite = true;
+	QImage t_img = _pixmap.toImage().convertToFormat(QImage::Format_ARGB32); // 转换为ARGB格式以支持透明度
+	for (int x = 0; x < t_img.width(); ++x) {
+		for (int y = 0; y < t_img.height(); ++y) {
+			QRgb t_pixel = t_img.pixel(x, y) & 0xFFFFFF;	//取颜色，去掉透明
+			if (t_pixel > 0 && t_pixel < 0xFFFFFF)
+			{
+				t_onlyWhite = false;
+				break;
+			}
+		}
+	}
+	if (t_onlyWhite)
+	{
+		QPainter t_painter(&_pixmap);
+		t_painter.setCompositionMode(QPainter::CompositionMode_SourceIn); // 只影响图像的透明部分
+		t_painter.fillRect(_pixmap.rect(), Qt::black);
+	}
+}
 void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 {
 	m_TB_iconList->clear();
@@ -222,7 +246,9 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 	struct TTrayInfo
 	{
 		QPixmap pixmap;
+		int iIcon;
 		QString path;
+		TTrayInfo() :iIcon(0) {}
 	};
 	QMap<quint64, TTrayInfo> t_ulTrayIcons;
 	QStringList t_subNotifys = t_sNotifyIcon.childGroups();
@@ -232,9 +258,10 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 		QByteArray t_baIcon = QSettingReadBinary(t_sNotifyIcon, "IconSnapshot");
 		TTrayInfo t_trayInfo;
 		if (t_baIcon.length() > 0)
-			t_trayInfo.pixmap.loadFromData(t_baIcon, "PNG");
+			loadPixmapFromPNG(t_trayInfo.pixmap, t_baIcon);
 		else
-			t_trayInfo.pixmap = getPixmapFromGUID(t_sNotifyIcon.value("IconGuid", QString()).toString());
+			//加载到的图像有问题，不是系统托盘显示的那个，但是不知道怎么找到正确的那个
+			t_trayInfo.pixmap = getPixmapFromGUID(t_sNotifyIcon.value("IconGuid", QString()).toString(), t_trayInfo.iIcon);
 		t_trayInfo.path = t_sNotifyIcon.value("ExecutablePath", QString()).toString();
 		t_ulTrayIcons.insert(t_subNotify.toULongLong(), t_trayInfo);
 		t_sNotifyIcon.endGroup();
@@ -244,8 +271,10 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 		if (!t_ulTrayIcons.contains(_ulIconID))
 			qDebug() << "unknow id " << _ulIconID;
 		QMoveAbleToolButton* t_button = new QMoveAbleToolButton();
-		t_button->setIcon(QIcon(t_ulTrayIcons[_ulIconID].pixmap));
-		t_button->setToolTip(QString::number(_ulIconID) + ":" + t_ulTrayIcons[_ulIconID].path);
+		TTrayInfo& t_TrayInfo = t_ulTrayIcons[_ulIconID];
+		t_button->setiIcon(t_TrayInfo.iIcon);
+		t_button->setIcon(t_TrayInfo.pixmap);
+		t_button->setToolTip(QString::number(_ulIconID) + ":" + t_TrayInfo.path);
 		QAction* t_iconAction = m_TB_iconList->addWidget(t_button);
 		t_iconAction->setProperty("id", _ulIconID);
 	}

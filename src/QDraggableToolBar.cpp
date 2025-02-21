@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QtDebug>
+
 QDraggableToolBar::QDraggableToolBar(QWidget* _parent)
 	: QToolBar(_parent)
 {
@@ -58,7 +59,6 @@ void QDraggableToolBar::mouseMoveEvent(QMouseEvent* _event)
 			m_previousAction = t_previousAction;
 			updateActionLeftLine(m_previousAction);
 			updateActionLeftLine(t_tmpAction);
-			setCursor(m_previousAction == m_activeAction || m_previousAction == m_activeActionNext ? Qt::ForbiddenCursor : Qt::ArrowCursor);
 		}
 		return _event->accept();
 	}
@@ -87,7 +87,6 @@ void QDraggableToolBar::mouseReleaseEvent(QMouseEvent* _event)
 		return QToolBar::mouseReleaseEvent(_event);
 
 	m_MouseDown = false;
-	setCursor(Qt::ArrowCursor);
 	bool t_MouseMove = m_MouseMove;
 	m_MouseMove = false;
 	if (m_activeAction != NULL)
