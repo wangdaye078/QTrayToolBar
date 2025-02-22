@@ -15,6 +15,7 @@
 #include <QSettings>
 #include <QCheckBox>
 #include <QShortcut>
+#include "QNotifyIconMap.h"
 #include "QDraggableToolBar.h"
 #include "basicDefine.h"
 
@@ -141,6 +142,8 @@ void QTrayToolSetupDialog::CreateControl(void)
 
 	m_deleteShortcut = new QShortcut(QKeySequence::Delete, m_TB_applyIconOrder);
 
+	m_NotifyIconMap = new QNotifyIconMap(this);
+	m_NotifyIconMap->init();
 	//--------------------------------------------
 	connect(m_TB_delete, SIGNAL(released()), this, SLOT(onDeleteReleased_slot()));
 	connect(m_TB_add, SIGNAL(released()), this, SLOT(onAddReleased_slot()));
@@ -208,9 +211,8 @@ QByteArray QSettingReadBinary(const QSettings& _settings, const QString& _key)
 	QString t_sTmp = _settings.value(_key, QString()).toString();
 	return QByteArray((const char*)t_sTmp.utf16(), t_sTmp.length() * 2);
 }
-void loadPixmapFromPNG(QPixmap& _pixmap, const QByteArray& _data)
+void optimizationPixmap(QPixmap& _pixmap)
 {
-	_pixmap.loadFromData(_data, "PNG");
 	//有的系统图像只有几条白线，实在看不清楚，所以把这种图像的白线变成黑线
 	bool t_onlyWhite = true;
 	QImage t_img = _pixmap.toImage().convertToFormat(QImage::Format_ARGB32); // 转换为ARGB格式以支持透明度
@@ -246,9 +248,8 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 	struct TTrayInfo
 	{
 		QPixmap pixmap;
-		int iIcon;
 		QString path;
-		TTrayInfo() :iIcon(0) {}
+		TTrayInfo() {}
 	};
 	QMap<quint64, TTrayInfo> t_ulTrayIcons;
 	QStringList t_subNotifys = t_sNotifyIcon.childGroups();
@@ -258,10 +259,12 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 		QByteArray t_baIcon = QSettingReadBinary(t_sNotifyIcon, "IconSnapshot");
 		TTrayInfo t_trayInfo;
 		if (t_baIcon.length() > 0)
-			loadPixmapFromPNG(t_trayInfo.pixmap, t_baIcon);
+			t_trayInfo.pixmap.loadFromData(t_baIcon, "PNG");
 		else
 			//加载到的图像有问题，不是系统托盘显示的那个，但是不知道怎么找到正确的那个
-			t_trayInfo.pixmap = getPixmapFromGUID(t_sNotifyIcon.value("IconGuid", QString()).toString(), t_trayInfo.iIcon);
+			t_trayInfo.pixmap = m_NotifyIconMap->getNotifyIcon(t_sNotifyIcon.value("IconGuid", QString()).toString());
+		//t_trayInfo.pixmap = getPixmapFromGUID(t_sNotifyIcon.value("IconGuid", QString()).toString());
+		optimizationPixmap(t_trayInfo.pixmap);
 		t_trayInfo.path = t_sNotifyIcon.value("ExecutablePath", QString()).toString();
 		t_ulTrayIcons.insert(t_subNotify.toULongLong(), t_trayInfo);
 		t_sNotifyIcon.endGroup();
@@ -272,7 +275,6 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 			qDebug() << "unknow id " << _ulIconID;
 		QMoveAbleToolButton* t_button = new QMoveAbleToolButton();
 		TTrayInfo& t_TrayInfo = t_ulTrayIcons[_ulIconID];
-		t_button->setiIcon(t_TrayInfo.iIcon);
 		t_button->setIcon(t_TrayInfo.pixmap);
 		t_button->setToolTip(QString::number(_ulIconID) + ":" + t_TrayInfo.path);
 		QAction* t_iconAction = m_TB_iconList->addWidget(t_button);

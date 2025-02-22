@@ -6,9 +6,16 @@
 #include <commctrl.h>
 #include <Setupapi.h>
 
-QPixmap getPixmapFromGUID(const QString& _guid, int& _iIcon)
+QPixmap getPixmapFromGUID(const QString& _guid)
 {
-	_iIcon = 0;
+	//这些图标都是从taskbarcpl.dll里导出的。
+	/*
+	if (_guid == "{7820AE73-23E3-4229-82C1-E41CB67D5B9C}")
+		return QPixmap(":/icons/ico/sound.png");
+	if (_guid == "{7820AE74-23E3-4229-82C1-E41CB67D5B9C}")
+		return QPixmap(":/icons/ico/network.png");
+	if (_guid == "{7820AE77-23E3-4229-82C1-E41CB67D5B9C}")
+		return QPixmap(":/icons/ico/locate.png");*/
 	QPixmap t_pixmap;
 	GUID t_guid = GUID(QUuid(_guid));
 	HICON t_hicon;
@@ -17,7 +24,6 @@ QPixmap getPixmapFromGUID(const QString& _guid, int& _iIcon)
 	{
 		t_pixmap = QtWin::fromHICON(t_hicon);
 		DestroyIcon(t_hicon);
-		_iIcon = t_MiniIconIndex;
 	}
 	return t_pixmap;
 }

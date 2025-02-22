@@ -19,6 +19,7 @@ class QCheckBox;
 class QStandardItemModel;
 class QDraggableToolBar;
 class QShortcut;
+class QNotifyIconMap;
 
 enum PathCheck
 {
@@ -77,6 +78,7 @@ private:
 	QStandardItemModel* m_folderModel;
 	QShortcut* m_deleteShortcut;
 private:
+	QNotifyIconMap* m_NotifyIconMap;
 	QSet<QString> m_paths;
 	QPixmap m_iconPixmap;
 	QList<quint64> m_ulOrderList;

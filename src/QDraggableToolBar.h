@@ -17,14 +17,11 @@ class QMoveAbleToolButton : public QToolButton
 	Q_OBJECT
 public:
 	QMoveAbleToolButton(QWidget* _parent = NULL) :
-		QToolButton(_parent), iIcon(0) {
+		QToolButton(_parent) {
 		setIconSize(QSize(16, 16));
 	};
 	~QMoveAbleToolButton() {
 	};
-	void setiIcon(int _iIcon) {
-		iIcon = _iIcon;
-	}
 protected:
 	virtual void mouseMoveEvent(QMouseEvent* _event)
 	{
@@ -38,8 +35,6 @@ protected:
 	{
 		_event->ignore();
 	}
-private:
-	int iIcon;
 };
 class QDraggableToolBar : public QToolBar
 {
