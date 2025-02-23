@@ -72,7 +72,6 @@ void QTrayToolMenu::mouseMoveEvent(QMouseEvent* _event)
 			updateActionTopLine(t_tmpAction);
 			setCursor(m_previousAction == m_activeAction || m_previousAction == m_activeActionNext ? Qt::ForbiddenCursor : Qt::ArrowCursor);
 		}
-		return _event->accept();
 	}
 	QMenu::mouseMoveEvent(_event);
 }
