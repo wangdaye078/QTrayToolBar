@@ -16,7 +16,7 @@
 #include <QCheckBox>
 #include <QShortcut>
 #include "QNotifyIconMap.h"
-#include "QDraggableToolBar.h"
+#include "QIconBar.h"
 #include "basicDefine.h"
 
 QTrayToolSetupDialog::QTrayToolSetupDialog(QWidget* _parent)
@@ -120,7 +120,7 @@ void QTrayToolSetupDialog::CreateControl(void)
 
 	t_mainLayout->addWidget(m_CB_startup, 4, 0, 1, 1);
 
-	m_TB_iconList = new QDraggableToolBar(this);
+	m_TB_iconList = new QIconBar(this);
 	m_TB_iconList->setObjectName(QString::fromUtf8("m_TB_iconList"));
 	t_mainLayout->addWidget(m_TB_iconList, 4, 1, 1, 4);
 
@@ -132,7 +132,7 @@ void QTrayToolSetupDialog::CreateControl(void)
 
 	//--------------------------------------------
 	m_TB_open->setIcon(QIcon(":/icons/ico/open.png"));
-	m_TB_iconList->setIconSize(QSize(16, 16));
+	m_TB_iconList->setHeight(24);
 
 	m_folderModel = new QStandardItemModel(0, 2, this);
 	m_folderModel->setObjectName(QString::fromUtf8("m_folderModel"));
@@ -140,7 +140,6 @@ void QTrayToolSetupDialog::CreateControl(void)
 	QHeaderView* t_HorizontalHeader = m_TV_folder->horizontalHeader();
 	t_HorizontalHeader->resizeSection(0, 20);
 
-	m_deleteShortcut = new QShortcut(QKeySequence::Delete, m_TB_applyIconOrder);
 
 	m_NotifyIconMap = new QNotifyIconMap(this);
 	m_NotifyIconMap->init();
@@ -155,8 +154,8 @@ void QTrayToolSetupDialog::CreateControl(void)
 	connect(m_TB_open, SIGNAL(released()), this, SLOT(onOpenReleased_slot()));
 	connect(m_CB_startup, SIGNAL(stateChanged(int)), this, SLOT(onStartupStateChanged(int)));
 	connect(m_TV_folder->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(onCurrentFolderChanged_slot(const QModelIndex&, const QModelIndex&)));
-	connect(m_TB_iconList, SIGNAL(moveAction_signal(QAction*, QAction*)), this, SLOT(onTrayIconMove_slot(QAction*, QAction*)));
-	connect(m_deleteShortcut, SIGNAL(activated()), this, SLOT(onDeleteKeyPress_slot()));
+	connect(m_TB_iconList, SIGNAL(moveIcon_signal(int, int)), this, SLOT(onTrayIconMove_slot(int, int)));
+	connect(m_TB_iconList, SIGNAL(deleteIcon_signal(int)), this, SLOT(onTrayIconDelete_slot(int)));
 }
 void QTrayToolSetupDialog::RetranslateUi(void)
 {
@@ -273,12 +272,11 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 	{
 		if (!t_ulTrayIcons.contains(_ulIconID))
 			qDebug() << "unknow id " << _ulIconID;
-		QMoveAbleToolButton* t_button = new QMoveAbleToolButton();
+		QString t_sIconID = QString::number(_ulIconID);
 		TTrayInfo& t_TrayInfo = t_ulTrayIcons[_ulIconID];
-		t_button->setIcon(t_TrayInfo.pixmap);
-		t_button->setToolTip(QString::number(_ulIconID) + ":" + t_TrayInfo.path);
-		QAction* t_iconAction = m_TB_iconList->addWidget(t_button);
-		t_iconAction->setProperty("id", _ulIconID);
+		QListWidgetItem* t_item = m_TB_iconList->addIcon(t_TrayInfo.pixmap);
+		t_item->setToolTip(t_sIconID + ":" + t_TrayInfo.path);
+		t_item->setData(Qt::UserRole, _ulIconID);
 	}
 }
 void QTrayToolSetupDialog::onDeleteReleased_slot()
@@ -413,44 +411,15 @@ void QTrayToolSetupDialog::onCurrentFolderChanged_slot(const QModelIndex& _Curre
 	m_LE_path->setToolTip(m_LE_path->text());
 	m_LE_path->setCursorPosition(0);
 }
-void QTrayToolSetupDialog::onTrayIconMove_slot(QAction* _move, QAction* _before)
+void QTrayToolSetupDialog::onTrayIconMove_slot(int _moveidx, int _beforeidx)
 {
-	quint64 t_OrderID = NULL;
-	quint64 t_moveID = _move->property("id").toULongLong();
-	quint64 t_beforeID = _before->property("id").toULongLong();
-	for (QList<quint64>::iterator i = m_ulOrderList.begin(); i != m_ulOrderList.end(); ++i)
-	{
-		if (*i == t_moveID)
-		{
-			t_OrderID = *i;
-			m_ulOrderList.erase(i);
-			break;
-		}
-	}
-	for (QList<quint64>::iterator i = m_ulOrderList.begin(); i != m_ulOrderList.end(); ++i)
-	{
-		if (*i == t_beforeID)
-		{
-			m_ulOrderList.insert(i, t_OrderID);
-			break;
-		}
-	}
+	quint64 t_OrderID = m_ulOrderList[_moveidx];
+	m_ulOrderList.removeOne(t_OrderID);
+	m_ulOrderList.insert(_moveidx < _beforeidx ? _beforeidx - 1 : _beforeidx, t_OrderID);
 }
-void QTrayToolSetupDialog::onDeleteKeyPress_slot(void)
+void QTrayToolSetupDialog::onTrayIconDelete_slot(int _idx)
 {
-	QPoint t_globalPos = QCursor::pos();
-	QPoint t_toolbarPos = m_TB_iconList->mapFromGlobal(t_globalPos);
-	QAction* t_activeAction = m_TB_iconList->actionAt(t_toolbarPos);
-	if (t_activeAction != NULL)
-	{
-		quint64 t_actID = t_activeAction->property("id").toULongLong();
-		int t_idx = m_ulOrderList.indexOf(t_actID);
-		if (t_idx >= 0)
-		{
-			m_ulOrderList.removeAt(t_idx);
-			m_TB_iconList->removeAction(t_activeAction);
-			delete t_activeAction;
-			m_ulDeletedOrderList.append(t_actID);
-		}
-	}
+	quint64 t_OrderID = m_ulOrderList[_idx];
+	m_ulOrderList.removeOne(t_OrderID);
+	m_ulDeletedOrderList.append(t_OrderID);
 }

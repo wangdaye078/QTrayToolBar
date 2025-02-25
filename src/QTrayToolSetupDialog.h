@@ -17,10 +17,9 @@ class QToolButton;
 class QLabel;
 class QCheckBox;
 class QStandardItemModel;
-class QDraggableToolBar;
 class QShortcut;
 class QNotifyIconMap;
-
+class QIconBar;
 enum PathCheck
 {
 	CheckSuccess,
@@ -54,8 +53,8 @@ private slots:
 	void onOpenReleased_slot(void);
 	void onStartupStateChanged(int _status);
 	void onCurrentFolderChanged_slot(const QModelIndex& _Current, const QModelIndex& _Previous);
-	void onTrayIconMove_slot(QAction* _move, QAction* _before);
-	void onDeleteKeyPress_slot(void);
+	void onTrayIconMove_slot(int _moveidx, int _beforeidx);
+	void onTrayIconDelete_slot(int _idx);
 signals:
 	void filtersChanged_signal(const QStringList& _filters);
 	void foldersChanged_signal(const QMap<QString, TFolderInfo>& _folders);
@@ -73,7 +72,7 @@ private:
 	QLineEdit* m_LE_fileFilters;
 	QCheckBox* m_CB_startup;
 	QToolButton* m_TB_applyFilter;
-	QDraggableToolBar* m_TB_iconList;
+	QIconBar* m_TB_iconList;
 	QToolButton* m_TB_applyIconOrder;
 	QStandardItemModel* m_folderModel;
 	QShortcut* m_deleteShortcut;
