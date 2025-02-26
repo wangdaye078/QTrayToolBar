@@ -24,7 +24,7 @@ QPixmap QNotifyIconMap::getNotifyIcon(const QString& _guid)
 }
 void QNotifyIconMap::init(void)
 {
-	QFile t_jsonFile(QCoreApplication::applicationDirPath() + "/NotifyIcon.json");
+	QFile t_jsonFile(QCoreApplication::applicationDirPath() + "/setting/NotifyIcon.json");
 	if (!t_jsonFile.open(QIODevice::ReadOnly))
 		return;
 	QByteArray t_jsonData = t_jsonFile.readAll();
@@ -36,10 +36,11 @@ void QNotifyIconMap::init(void)
 		int t_iconId = t_item.value("id").toInt();
 
 		HICON t_hiconLarge;
-		if (ExtractIconExW(L"taskbarcpl.dll", -t_iconId, &t_hiconLarge, NULL, 1) != 1)
+		if (ExtractIconExW(QStringToWCHAR(t_module), -t_iconId, &t_hiconLarge, NULL, 1) != 1)
 			continue;
 		QPixmap t_icon = QtWin::fromHICON(t_hiconLarge);
 		m_iconMap.insert(t_guid, t_icon);
 		DestroyIcon(t_hiconLarge);
 	}
+	t_jsonFile.close();
 }

@@ -12,9 +12,6 @@
 QTrayToolMenu::QTrayToolMenu(QWidget* _parent)
 	: QMenu(_parent), m_LnkFile(NULL), m_MouseDown(false)
 {
-	setStyleSheet("QMenu{padding-left: 2px;border:1px solid #bbbbbb;background-color:#ffffff;}\n \
-		QMenu::item:selected{background-color:#f9f9f9;color:#000000;}\n \
-		QMenu::item{padding: 2px;padding-right: 20px;}");
 }
 
 QTrayToolMenu::~QTrayToolMenu()

@@ -11,7 +11,6 @@ QDraggableListWidget::QDraggableListWidget(QWidget* _parent) :
 	QListWidget(_parent), m_MouseDown(false), m_MouseMove(false), m_activeItem(NULL),
 	m_activeItemNext(NULL), m_previousItem(NULL)
 {
-	setStyleSheet("QListWidget{ border: 1px solid transparent; }, QListWidget::item:selected { border: 1px solid transparent; }");
 }
 QDraggableListWidget::~QDraggableListWidget()
 {

@@ -47,36 +47,34 @@ QTrayToolManager::~QTrayToolManager()
 void QTrayToolManager::loadSetting(void)
 {
 	QFileInfo t_appPath(QCoreApplication::applicationFilePath());
-	QString t_settingFile = t_appPath.absolutePath() + "\\" + t_appPath.completeBaseName() + ".dat";
-	if (QFileInfo(t_settingFile).exists())
+	QString t_settingFile = t_appPath.absolutePath() + "/setting/" + t_appPath.completeBaseName() + ".dat";
+	QFile t_file(t_settingFile);
+	if (t_file.exists() && t_file.open(QIODevice::ReadOnly))
 	{
-		QFile t_file(t_settingFile);
-		if (t_file.open(QIODevice::ReadOnly)) {
-			QDataStream in(&t_file);
-			qint32 t_Traycount;
-			in >> m_nameFilters >> t_Traycount;
-			for (int i = 0; i < t_Traycount; ++i)
-			{
-				char* t_pBuff;
-				uint t_readLen;
-				in.readBytes(t_pBuff, t_readLen);
-				QByteArray t_arr(t_pBuff, t_readLen);
-				delete[] t_pBuff;
-				QTrayToolControl* t_TrayToolControl = new QTrayToolControl(this);
-				t_TrayToolControl->setNameFilters(&m_nameFilters);
-				t_TrayToolControl->load(t_arr);
-				m_TrayToolControls.insert(t_TrayToolControl->getPath(), t_TrayToolControl);
-				connect(t_TrayToolControl, SIGNAL(openSetupDialog_signal()), this, SLOT(openSetupDialog_slot()));
-				connect(t_TrayToolControl, SIGNAL(lnkFileChanged_signal()), this, SLOT(onLnkFileChanged_slot()));
-			}
-			t_file.close();
+		QDataStream in(&t_file);
+		qint32 t_Traycount;
+		in >> m_nameFilters >> t_Traycount;
+		for (int i = 0; i < t_Traycount; ++i)
+		{
+			char* t_pBuff;
+			uint t_readLen;
+			in.readBytes(t_pBuff, t_readLen);
+			QByteArray t_arr(t_pBuff, t_readLen);
+			delete[] t_pBuff;
+			QTrayToolControl* t_TrayToolControl = new QTrayToolControl(this);
+			t_TrayToolControl->setNameFilters(&m_nameFilters);
+			t_TrayToolControl->load(t_arr);
+			m_TrayToolControls.insert(t_TrayToolControl->getPath(), t_TrayToolControl);
+			connect(t_TrayToolControl, SIGNAL(openSetupDialog_signal()), this, SLOT(openSetupDialog_slot()));
+			connect(t_TrayToolControl, SIGNAL(lnkFileChanged_signal()), this, SLOT(onLnkFileChanged_slot()));
 		}
+		t_file.close();
 	}
 }
 void QTrayToolManager::saveSetting(void)
 {
 	QFileInfo t_appPath(QCoreApplication::applicationFilePath());
-	QString t_settingFile = t_appPath.absolutePath() + "/" + t_appPath.completeBaseName() + ".dat";
+	QString t_settingFile = t_appPath.absolutePath() + "/setting/" + t_appPath.completeBaseName() + ".dat";
 	QFile t_file(t_settingFile);
 	if (t_file.open(QIODevice::WriteOnly)) {
 		QDataStream out(&t_file);
