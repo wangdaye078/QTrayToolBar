@@ -9,12 +9,16 @@
 
 #include <QDataStream>
 #include <QPixmap>
+
+//保存的菜单数据
+const int SETTING_VER = 0x7878;
 class TLnkFile
 {
 public:
 	QString name;
 	QString path;
 	QPixmap icon;
+	bool isDir;
 	QList<TLnkFile*> subLnk;
 
 	TLnkFile() {};
@@ -35,6 +39,7 @@ public:
 		_stream << _lnkFile.name;
 		_stream << _lnkFile.path;
 		_stream << _lnkFile.icon;
+		_stream << _lnkFile.isDir;
 		_stream << qint32(_lnkFile.subLnk.size());
 		foreach(TLnkFile * t_lnk, _lnkFile.subLnk)
 			_stream << *t_lnk;
@@ -47,6 +52,7 @@ public:
 		_stream >> _lnkFile.name;
 		_stream >> _lnkFile.path;
 		_stream >> _lnkFile.icon;
+		_stream >> _lnkFile.isDir;
 		qint32 t_count;
 		_stream >> t_count;
 		for (int i = 0; i < t_count; ++i)
@@ -58,7 +64,7 @@ public:
 		return _stream;
 	}
 };
-
+//用于和设置窗口传递的数据
 struct TFolderInfo
 {
 	QString Path;

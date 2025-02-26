@@ -13,12 +13,14 @@
 class QTrayToolMenu;
 class QMenu;
 class QAction;
+class QFileSystemWatcher;
 class TLnkFileEx : public TLnkFile
 {
 public:
 	QAction* action;
-	QTrayToolMenu* menuParent;
-	TLnkFileEx() :TLnkFile(), action(NULL), menuParent(NULL) {}
+	QTrayToolMenu* menuParent;	//对于每一项，它是这一项所在的菜单
+	QTrayToolMenu* menu;	//对于子菜单，他就是子菜单本身
+	TLnkFileEx() :TLnkFile(), action(NULL), menuParent(NULL), menu(NULL) {}
 	virtual ~TLnkFileEx() {
 	};
 	virtual TLnkFile* creatSub()
@@ -54,17 +56,17 @@ public:
 	QByteArray toByteArray(void);
 	void RetranslateUi(void);
 private:
-	void update(const QString& _path, TLnkFileEx* _parent);
+	bool update(TLnkFileEx* _parent);	//返回是否有改变
 	void createTrayMenu(void);
-	void createAction(QTrayToolMenu* _parent, TLnkFileEx* _LnkFile, bool _createSub);
-	void creadeToolMenu(QTrayToolMenu* _parent, TLnkFileEx* _LnkFile);
+	void createAction(QTrayToolMenu* _menu, TLnkFileEx* _LnkFile);
+	void creadeToolMenu(TLnkFileEx* _LnkFile);
 	void createLnkList(const QString& _Path, TLnkFileEx* _parent);
 private slots:
-	void onSysTrayIconaActivated_slot(QSystemTrayIcon::ActivationReason _reason);
+	void onSysTrayIconActivated_slot(QSystemTrayIcon::ActivationReason _reason);
+	void onFolderChanged_slot(const QString& _path);
 	void onLnkActionTrigger_slot(void);
 	void onLnkFileChanged_slot(void);
 	void onOpenFolderTrigger_slot(void);
-	void onUpdateTrigger_slot(void);
 	void onOptionTrigger_slot(void);
 signals:
 	void openSetupDialog_signal(void);
@@ -74,10 +76,11 @@ private:
 	QSystemTrayIcon* m_MainTrayIcon;
 	QTrayToolMenu* m_ToolMenu;
 	TLnkFileEx* m_mainLnkList;
+	QFileSystemWatcher* m_folderWatcher;
+	QMap<QString, TLnkFileEx*> m_DirMap;
 private:
 	QAction* m_AC_Option;
 	QAction* m_AC_OpenFolder;
-	QAction* m_AC_Update;
 	QAction* m_AC_Quit;
 	QMenu* m_trayContextMenu;
 };

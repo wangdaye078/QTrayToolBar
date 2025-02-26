@@ -52,6 +52,10 @@ void QTrayToolManager::loadSetting(void)
 	if (t_file.exists() && t_file.open(QIODevice::ReadOnly))
 	{
 		QDataStream in(&t_file);
+		int t_ver = 0;
+		in >> t_ver;
+		if (t_ver != SETTING_VER)
+			return;
 		qint32 t_Traycount;
 		in >> m_nameFilters >> t_Traycount;
 		for (int i = 0; i < t_Traycount; ++i)
@@ -78,6 +82,7 @@ void QTrayToolManager::saveSetting(void)
 	QFile t_file(t_settingFile);
 	if (t_file.open(QIODevice::WriteOnly)) {
 		QDataStream out(&t_file);
+		out << SETTING_VER;
 		out << m_nameFilters;
 		out << qint32(m_TrayToolControls.size());
 		for (QMap<QString, QTrayToolControl*>::iterator i = m_TrayToolControls.begin(); i != m_TrayToolControls.end(); ++i)
