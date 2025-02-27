@@ -14,6 +14,8 @@ class QTrayToolMenu;
 class QMenu;
 class QAction;
 class QFileSystemWatcher;
+class QFileInfo;
+
 class TLnkFileEx : public TLnkFile
 {
 public:
@@ -56,6 +58,7 @@ public:
 	QByteArray toByteArray(void);
 	void RetranslateUi(void);
 private:
+	TLnkFileEx* fileInfoToLnkFileEx(const QFileInfo& _fileInfo);
 	bool update(TLnkFileEx* _parent);	//返回是否有改变
 	void createTrayMenu(void);
 	void createAction(QTrayToolMenu* _menu, TLnkFileEx* _LnkFile);

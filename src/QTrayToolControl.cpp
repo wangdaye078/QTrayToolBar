@@ -103,67 +103,75 @@ QByteArray QTrayToolControl::toByteArray(void)
 	out << *m_mainLnkList;
 	return t_buff;
 }
+TLnkFileEx* QTrayToolControl::fileInfoToLnkFileEx(const QFileInfo& _fileInfo)
+{
+	TLnkFileEx* t_LnkFile = new TLnkFileEx();
+	if (_fileInfo.suffix() == "lnk")
+		t_LnkFile->name = lnkFileReader(NULL, _fileInfo.absoluteFilePath()).getName();
+	else if (_fileInfo.suffix() == "url")
+		t_LnkFile->name = _fileInfo.completeBaseName();
+	else
+		t_LnkFile->name = _fileInfo.fileName();
+	t_LnkFile->path = QDir::toNativeSeparators(_fileInfo.absoluteFilePath());
+	t_LnkFile->icon = getPixmapFromFile(t_LnkFile->path);
+	t_LnkFile->isDir = _fileInfo.isDir();
+	return t_LnkFile;
+}
 bool QTrayToolControl::update(TLnkFileEx* _parent)
 {
 	bool t_changed = false;
 	if (!_parent->isDir)
 		return false;
-	QMap<QString, TLnkFileEx*> t_Paths;
-	foreach(TLnkFile * t_lnk, _parent->subLnk)
-		t_Paths.insert(t_lnk->path, static_cast<TLnkFileEx*>(t_lnk));
 
 	QFileInfoList t_fileList = QDir(_parent->path).entryInfoList(*m_nameFilters, QDir::NoDotAndDotDot | QDir::AllEntries | QDir::System, QDir::DirsFirst);
-	QSet<QString> t_currentPaths;
-	foreach(const QFileInfo & t_file, t_fileList)
+	//创建新旧文件列表的集合，和用于快速定位的表
+	QSet<QString> t_oldPathSet;
+	QMap<QString, TLnkFileEx*> t_oldPath2Lnkfile;
+	for (TLnkFile* t_lnk : _parent->subLnk)
 	{
-		QString t_path = QDir::toNativeSeparators(t_file.absoluteFilePath());
-		bool t_isDir = t_file.isDir();
-		t_currentPaths.insert(t_path);
-		TLnkFileEx* t_LnkFile = NULL;
-		if (!t_Paths.contains(t_path))
-		{
-			//如果不包含，则需要先创建数据
-			_parent->subLnk.append(new TLnkFileEx());
-			t_LnkFile = static_cast<TLnkFileEx*>(_parent->subLnk.last());
-			if (t_file.suffix() == "lnk")
-				t_LnkFile->name = lnkFileReader(NULL, t_path).getName();
-			else if (t_file.suffix() == "url")
-				t_LnkFile->name = t_file.completeBaseName();
-			else
-				t_LnkFile->name = t_file.fileName();
-			t_LnkFile->path = QDir::toNativeSeparators(t_path);
-			t_LnkFile->icon = getPixmapFromFile(t_LnkFile->path);
-			t_LnkFile->isDir = t_isDir;
-			//再创建菜单项
-			createAction(_parent->menu, t_LnkFile);
-			t_Paths.insert(t_LnkFile->path, t_LnkFile);
-			if (t_LnkFile->isDir)
-				m_DirMap.insert(t_LnkFile->path, t_LnkFile);
-			t_changed = true;
-		}
-		if (t_LnkFile == NULL)
-			t_LnkFile = t_Paths[t_path];
-
-		if (t_isDir)
-			t_changed |= update(t_LnkFile);
+		t_oldPathSet.insert(t_lnk->path);
+		t_oldPath2Lnkfile.insert(t_lnk->path, static_cast<TLnkFileEx*>(t_lnk));
 	}
-	for (QMap<QString, TLnkFileEx*>::iterator i = t_Paths.begin(); i != t_Paths.end(); ++i)
+	QSet<QString> t_newPathSet;
+	QMap<QString, QFileInfo*> t_newPath2Fileinfo;
+	for (QFileInfo& i : t_fileList)
 	{
-		if (!t_currentPaths.contains(i.key()))
-		{
-			TLnkFileEx* t_LnkFile = i.value();
-			if (t_LnkFile->isDir)
-			{
-				update(t_LnkFile);
-				m_folderWatcher->removePath(t_LnkFile->path);
-				m_DirMap.remove(t_LnkFile->path);
-			}
-			t_LnkFile->menuParent->removeAction(t_LnkFile->action);
-
-			_parent->removeSubPath(t_LnkFile->path);
-			t_changed = true;
-		}
+		t_newPathSet.insert(QDir::toNativeSeparators(i.absoluteFilePath()));
+		t_newPath2Fileinfo.insert(QDir::toNativeSeparators(i.absoluteFilePath()), &i);
 	}
+	//使用集合差获得需要添加和删除的文件和文件夹
+	QSet<QString> t_needdelete = t_oldPathSet - t_newPathSet;
+	QSet<QString> t_needadd = t_newPathSet - t_oldPathSet;
+	//添加、删除、并对现存的文件夹递归更新
+	for (const QString& t_filePath : t_needadd)
+	{
+		TLnkFileEx* t_LnkFile = fileInfoToLnkFileEx(*t_newPath2Fileinfo[t_filePath]);
+		_parent->subLnk.append(t_LnkFile);
+		//再创建菜单项
+		createAction(_parent->menu, t_LnkFile);
+		t_oldPath2Lnkfile.insert(t_LnkFile->path, t_LnkFile);
+		if (t_LnkFile->isDir)
+			m_DirMap.insert(t_LnkFile->path, t_LnkFile);
+	}
+	for (const QString& t_filePath : t_needdelete)
+	{
+		TLnkFileEx* t_LnkFile = t_oldPath2Lnkfile[t_filePath];
+		if (t_LnkFile->isDir)
+		{
+			update(t_LnkFile);
+			m_folderWatcher->removePath(t_LnkFile->path);
+			m_DirMap.remove(t_LnkFile->path);
+		}
+		t_LnkFile->menuParent->removeAction(t_LnkFile->action);
+		_parent->removeSubPath(t_LnkFile->path);
+	}
+	for (QMap<QString, QFileInfo*>::iterator i = t_newPath2Fileinfo.begin(); i != t_newPath2Fileinfo.end(); ++i)
+	{
+		if (i.value()->isDir())
+			t_changed |= update(t_oldPath2Lnkfile[i.key()]);
+	}
+	t_changed |= (t_needdelete.size() > 0) | (t_needadd.size() > 0);
+
 	return t_changed;
 }
 void QTrayToolControl::createTrayMenu(void)
@@ -227,7 +235,7 @@ void QTrayToolControl::creadeToolMenu(TLnkFileEx* _LnkFile)
 	_LnkFile->menu->setLnkFile(_LnkFile);
 	_LnkFile->menu->setProperty("path", _LnkFile->path);
 	connect(_LnkFile->menu, SIGNAL(LnkFileChanged_signal()), this, SLOT(onLnkFileChanged_slot()));
-	foreach(TLnkFile * t_lnk, _LnkFile->subLnk)
+	for (TLnkFile* t_lnk : _LnkFile->subLnk)
 	{
 		TLnkFileEx* t_lnkEx = static_cast<TLnkFileEx*>(t_lnk);
 		createAction(_LnkFile->menu, t_lnkEx);
@@ -236,20 +244,10 @@ void QTrayToolControl::creadeToolMenu(TLnkFileEx* _LnkFile)
 void QTrayToolControl::createLnkList(const QString& _Path, TLnkFileEx* _parent)
 {
 	QFileInfoList t_fileList = QDir(_Path).entryInfoList(*m_nameFilters, QDir::NoDotAndDotDot | QDir::AllEntries | QDir::System, QDir::DirsFirst);
-	foreach(const QFileInfo & t_file, t_fileList)
+	for (QFileInfoList::iterator i = t_fileList.begin(); i != t_fileList.end(); ++i)
 	{
-		_parent->subLnk.append(new TLnkFileEx());
-		TLnkFileEx* t_LnkFile = static_cast<TLnkFileEx*>(_parent->subLnk.last());
-		if (t_file.suffix() == "lnk")
-			t_LnkFile->name = lnkFileReader(NULL, t_file.absoluteFilePath()).getName();
-		else if (t_file.suffix() == "url")
-			t_LnkFile->name = t_file.completeBaseName();
-		else
-			t_LnkFile->name = t_file.fileName();
-		t_LnkFile->path = QDir::toNativeSeparators(t_file.absoluteFilePath());
-		t_LnkFile->icon = getPixmapFromFile(t_LnkFile->path);
-		t_LnkFile->isDir = t_file.isDir();
-
+		TLnkFileEx* t_LnkFile = fileInfoToLnkFileEx(*i);
+		_parent->subLnk.append(t_LnkFile);
 		if (t_LnkFile->isDir)
 			createLnkList(t_LnkFile->path, t_LnkFile);
 	}

@@ -252,9 +252,9 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 	};
 	QMap<quint64, TTrayInfo> t_ulTrayIcons;
 	QStringList t_subNotifys = t_sNotifyIcon.childGroups();
-	foreach(const QString & t_subNotify, t_subNotifys)
+	for (QStringList::iterator i = t_subNotifys.begin(); i != t_subNotifys.end(); ++i)
 	{
-		t_sNotifyIcon.beginGroup(t_subNotify);
+		t_sNotifyIcon.beginGroup(*i);
 		QByteArray t_baIcon = QSettingReadBinary(t_sNotifyIcon, "IconSnapshot");
 		TTrayInfo t_trayInfo;
 		if (t_baIcon.length() > 0)
@@ -265,10 +265,10 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 		//t_trayInfo.pixmap = getPixmapFromGUID(t_sNotifyIcon.value("IconGuid", QString()).toString());
 		optimizationPixmap(t_trayInfo.pixmap);
 		t_trayInfo.path = t_sNotifyIcon.value("ExecutablePath", QString()).toString();
-		t_ulTrayIcons.insert(t_subNotify.toULongLong(), t_trayInfo);
+		t_ulTrayIcons.insert((*i).toULongLong(), t_trayInfo);
 		t_sNotifyIcon.endGroup();
 	}
-	foreach(quint64 _ulIconID, m_ulOrderList)
+	for (quint64 _ulIconID : m_ulOrderList)
 	{
 		if (!t_ulTrayIcons.contains(_ulIconID))
 			qDebug() << "unknow id " << _ulIconID;
@@ -362,7 +362,7 @@ void QTrayToolSetupDialog::onApplyIconOrderReleased_slot(void)
 	}
 	regWriteBinary("Control Panel\\NotifyIconSettings\\", "UIOrderList", t_baOrderList);
 
-	foreach(quint64 t_id, m_ulDeletedOrderList)
+	for (quint64 t_id : m_ulDeletedOrderList)
 	{
 		QSettings t_sNotifyIcon("HKEY_CURRENT_USER\\Control Panel\\NotifyIconSettings\\", QSettings::Registry64Format);
 		t_sNotifyIcon.remove(QString::number(t_id));
@@ -373,8 +373,8 @@ static QString imageFilter()
 {
 	QList<QByteArray> supportedImageFormats = QImageReader::supportedImageFormats();
 	QStringList t_filters;
-	foreach(const QByteArray & t_support, supportedImageFormats)
-		t_filters.append(QString("*.%1").arg(t_support.constData()).toLower());
+	for (QByteArray& t_format : supportedImageFormats)
+		t_filters.append(QString("*.%1").arg(t_format.constData()).toLower());
 	if (t_filters.contains("*.jepg"))
 		t_filters.append("*.jpg");
 	return t_filters.join(" ");

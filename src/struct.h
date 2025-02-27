@@ -24,7 +24,7 @@ public:
 	TLnkFile() {};
 	virtual ~TLnkFile()
 	{
-		foreach(TLnkFile * _sub, subLnk)
+		for (TLnkFile* _sub : subLnk)
 		{
 			delete _sub;
 		}
@@ -41,7 +41,7 @@ public:
 		_stream << _lnkFile.icon;
 		_stream << _lnkFile.isDir;
 		_stream << qint32(_lnkFile.subLnk.size());
-		foreach(TLnkFile * t_lnk, _lnkFile.subLnk)
+		for (TLnkFile* t_lnk : _lnkFile.subLnk)
 			_stream << *t_lnk;
 
 		return _stream;
