@@ -215,14 +215,13 @@ void optimizationPixmap(QPixmap& _pixmap)
 	//有的系统图像只有几条白线，实在看不清楚，所以把这种图像的白线变成黑线
 	bool t_onlyWhite = true;
 	QImage t_img = _pixmap.toImage().convertToFormat(QImage::Format_ARGB32); // 转换为ARGB格式以支持透明度
-	for (int x = 0; x < t_img.width(); ++x) {
-		for (int y = 0; y < t_img.height(); ++y) {
-			QRgb t_pixel = t_img.pixel(x, y) & 0xFFFFFF;	//取颜色，去掉透明
-			if (t_pixel > 0 && t_pixel < 0xFFFFFF)
-			{
-				t_onlyWhite = false;
-				break;
-			}
+	int t_min = qMin(t_img.width(), t_img.height());
+	for (int i = 0; i < t_min; ++i) {
+		QRgb t_pixel = t_img.pixel(i, i) & 0xFFFFFF;	//取颜色，去掉透明
+		if (t_pixel > 0 && t_pixel < 0xFFFFFF)
+		{
+			t_onlyWhite = false;
+			break;
 		}
 	}
 	if (t_onlyWhite)
@@ -252,9 +251,9 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 	};
 	QMap<quint64, TTrayInfo> t_ulTrayIcons;
 	QStringList t_subNotifys = t_sNotifyIcon.childGroups();
-	for (QStringList::iterator i = t_subNotifys.begin(); i != t_subNotifys.end(); ++i)
+	for (QString& t_subNotifys : t_subNotifys)
 	{
-		t_sNotifyIcon.beginGroup(*i);
+		t_sNotifyIcon.beginGroup(t_subNotifys);
 		QByteArray t_baIcon = QSettingReadBinary(t_sNotifyIcon, "IconSnapshot");
 		TTrayInfo t_trayInfo;
 		if (t_baIcon.length() > 0)
@@ -265,7 +264,7 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 		//t_trayInfo.pixmap = getPixmapFromGUID(t_sNotifyIcon.value("IconGuid", QString()).toString());
 		optimizationPixmap(t_trayInfo.pixmap);
 		t_trayInfo.path = t_sNotifyIcon.value("ExecutablePath", QString()).toString();
-		t_ulTrayIcons.insert((*i).toULongLong(), t_trayInfo);
+		t_ulTrayIcons.insert(t_subNotifys.toULongLong(), t_trayInfo);
 		t_sNotifyIcon.endGroup();
 	}
 	for (quint64 _ulIconID : m_ulOrderList)
