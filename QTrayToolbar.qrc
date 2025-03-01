@@ -3,5 +3,8 @@
         <file>ico/TrayIcon.ico</file>
         <file>ico/folder.png</file>
         <file>ico/open.png</file>
+        <file>ico/config.png</file>
+        <file>ico/openfolder.png</file>
+        <file>ico/exit.png</file>
     </qresource>
 </RCC>

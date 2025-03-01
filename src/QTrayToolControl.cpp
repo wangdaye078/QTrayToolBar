@@ -178,12 +178,15 @@ void QTrayToolControl::createTrayMenu(void)
 {
 	m_AC_Option = new QAction(this);
 	m_AC_Option->setObjectName(QString::fromUtf8("m_AC_Option"));
+	m_AC_Option->setIcon(QIcon(":/icons/ico/config.png"));
 
 	m_AC_OpenFolder = new QAction(this);
 	m_AC_OpenFolder->setObjectName(QString::fromUtf8("m_AC_OpenFolder"));
+	m_AC_OpenFolder->setIcon(QIcon(":/icons/ico/openfolder.png"));
 
 	m_AC_Quit = new QAction(this);
 	m_AC_Quit->setObjectName(QString::fromUtf8("m_AC_Quit"));
+	m_AC_Quit->setIcon(QIcon(":/icons/ico/exit.png"));
 
 	m_trayContextMenu = new QMenu(NULL);
 	m_trayContextMenu->addAction(m_AC_Option);
