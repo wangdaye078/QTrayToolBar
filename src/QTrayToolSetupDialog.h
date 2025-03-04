@@ -46,9 +46,7 @@ private slots:
 	void onDeleteReleased_slot(void);
 	void onAddReleased_slot(void);
 	void onModifyReleased_slot(void);
-	void onApplyFilterReleased_slot(void);
-	void onApplyFolderReleased_slot(void);
-	void onApplyIconOrderReleased_slot(void);
+	void onApplyReleased_slot(void);
 	void onIconReleased_slot(void);
 	void onOpenReleased_slot(void);
 	void onStartupStateChanged(int _status);
@@ -67,20 +65,22 @@ private:
 	QToolButton* m_TB_delete;
 	QToolButton* m_TB_add;
 	QToolButton* m_TB_modify;
-	QToolButton* m_TB_applyFolder;
 	QLabel* m_LB_nameFilters;
 	QLineEdit* m_LE_fileFilters;
 	QCheckBox* m_CB_startup;
-	QToolButton* m_TB_applyFilter;
 	QIconBar* m_TB_iconList;
-	QToolButton* m_TB_applyIconOrder;
+	QToolButton* m_TB_apply;
 	QStandardItemModel* m_folderModel;
 	QShortcut* m_deleteShortcut;
 private:
 	QNotifyIconMap* m_NotifyIconMap;
-	QSet<QString> m_paths;
 	QPixmap m_iconPixmap;
 	QList<quint64> m_ulOrderList;
 	QList<quint64> m_ulDeletedOrderList;
+
+	QByteArray m_UIOrderList;
+	QString m_nameFilter;
+	QMap<QString, TFolderInfo> m_MenuSet;		//当前的设置
+	QMap<QString, TFolderInfo> m_MenuInfoMap;	//之前的设置
 };
 #endif // QTrayToolSetupDialog_h__

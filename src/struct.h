@@ -77,6 +77,14 @@ struct TFolderInfo
 		Path(_other.Path), Icon(_other.Icon)
 	{
 	}
+	bool operator!=(const TFolderInfo& _other) const
+	{
+		return (Path != _other.Path || Icon.toImage() != _other.Icon.toImage());
+	}
+	bool operator==(const TFolderInfo& _other) const
+	{
+		return !(Path != _other.Path || Icon.toImage() != _other.Icon.toImage());
+	}
 };
 
 #endif // struct_h__

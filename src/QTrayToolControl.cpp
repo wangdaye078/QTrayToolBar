@@ -51,6 +51,7 @@ void QTrayToolControl::setPath(const QString& _Path, const QPixmap& _pix)
 	{
 		reset();
 		m_folderWatcher->removePaths(m_folderWatcher->directories());
+		m_mainLnkList->name = "";
 		m_mainLnkList->path = t_nativePath;
 		m_mainLnkList->icon = _pix;		//经历过reset，需要再设置一遍
 		m_mainLnkList->isDir = QFileInfo(t_nativePath).isDir();
@@ -65,6 +66,7 @@ void QTrayToolControl::setPath(const QString& _Path, const QPixmap& _pix)
 	}
 	emit lnkFileChanged_signal();
 	m_MainTrayIcon->setIcon(QIcon(_pix));
+	m_MainTrayIcon->setToolTip(m_mainLnkList->name);
 	m_MainTrayIcon->show();
 }
 const QString& QTrayToolControl::getPath(void)
@@ -89,6 +91,7 @@ void QTrayToolControl::load(const QByteArray& _buff)
 
 	m_folderWatcher->removePaths(m_folderWatcher->directories());
 	m_MainTrayIcon->setIcon(QIcon(m_mainLnkList->icon));
+	m_MainTrayIcon->setToolTip(m_mainLnkList->name);
 	m_mainLnkList->menuParent = NULL;
 	m_mainLnkList->menu = m_ToolMenu;
 	creadeToolMenu(m_mainLnkList);

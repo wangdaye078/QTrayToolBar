@@ -32,8 +32,7 @@ QTrayToolSetupDialog::~QTrayToolSetupDialog()
 void QTrayToolSetupDialog::CreateControl(void)
 {
 	setObjectName(QString::fromUtf8("Form"));
-	resize(482, 252);
-
+	resize(487, 247);
 	QGridLayout* t_mainLayout = new QGridLayout(this);
 	t_mainLayout->setObjectName(QString::fromUtf8("t_mainLayout"));
 	m_TV_folder = new QTableView(this);
@@ -47,15 +46,12 @@ void QTrayToolSetupDialog::CreateControl(void)
 	m_TV_folder->verticalHeader()->setMinimumSectionSize(18);
 	m_TV_folder->verticalHeader()->setDefaultSectionSize(18);
 
-	t_mainLayout->addWidget(m_TV_folder, 0, 0, 1, 7);
+	t_mainLayout->addWidget(m_TV_folder, 0, 0, 1, 6);
 
 	m_TB_icon = new QToolButton(this);
 	m_TB_icon->setObjectName(QString::fromUtf8("m_TB_icon"));
 	m_TB_icon->setMinimumSize(QSize(48, 48));
 	m_TB_icon->setMaximumSize(QSize(48, 48));
-	QIcon icon;
-	icon.addFile(QString::fromUtf8("ico/icon.png"), QSize(), QIcon::Normal, QIcon::Off);
-	m_TB_icon->setIcon(icon);
 	m_TB_icon->setIconSize(QSize(48, 48));
 
 	t_mainLayout->addWidget(m_TB_icon, 1, 0, 2, 1);
@@ -64,12 +60,12 @@ void QTrayToolSetupDialog::CreateControl(void)
 	m_LE_path->setObjectName(QString::fromUtf8("m_LE_path"));
 	m_LE_path->setReadOnly(true);
 
-	t_mainLayout->addWidget(m_LE_path, 1, 1, 1, 5);
+	t_mainLayout->addWidget(m_LE_path, 1, 1, 1, 4);
 
 	m_TB_open = new QToolButton(this);
 	m_TB_open->setObjectName(QString::fromUtf8("m_TB_open"));
 
-	t_mainLayout->addWidget(m_TB_open, 1, 6, 1, 1);
+	t_mainLayout->addWidget(m_TB_open, 1, 5, 1, 1);
 
 	QSpacerItem* t_horizontalSpacer1 = new QSpacerItem(157, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -91,13 +87,7 @@ void QTrayToolSetupDialog::CreateControl(void)
 	m_TB_modify->setObjectName(QString::fromUtf8("m_TB_modify"));
 	m_TB_modify->setMinimumSize(QSize(50, 0));
 
-	t_mainLayout->addWidget(m_TB_modify, 2, 4, 1, 1);
-
-	m_TB_applyFolder = new QToolButton(this);
-	m_TB_applyFolder->setObjectName(QString::fromUtf8("m_TB_applyFolder"));
-	m_TB_applyFolder->setMinimumSize(QSize(50, 0));
-
-	t_mainLayout->addWidget(m_TB_applyFolder, 2, 5, 1, 2);
+	t_mainLayout->addWidget(m_TB_modify, 2, 4, 1, 2);
 
 	m_LB_nameFilters = new QLabel(this);
 	m_LB_nameFilters->setObjectName(QString::fromUtf8("m_LB_nameFilters"));
@@ -107,13 +97,7 @@ void QTrayToolSetupDialog::CreateControl(void)
 	m_LE_fileFilters = new QLineEdit(this);
 	m_LE_fileFilters->setObjectName(QString::fromUtf8("m_LE_fileFilters"));
 
-	t_mainLayout->addWidget(m_LE_fileFilters, 3, 1, 1, 4);
-
-	m_TB_applyFilter = new QToolButton(this);
-	m_TB_applyFilter->setObjectName(QString::fromUtf8("m_TB_applyFilter"));
-	m_TB_applyFilter->setMinimumSize(QSize(50, 0));
-
-	t_mainLayout->addWidget(m_TB_applyFilter, 3, 5, 1, 2);
+	t_mainLayout->addWidget(m_LE_fileFilters, 3, 1, 1, 5);
 
 	m_CB_startup = new QCheckBox(this);
 	m_CB_startup->setObjectName(QString::fromUtf8("m_CB_startup"));
@@ -122,14 +106,18 @@ void QTrayToolSetupDialog::CreateControl(void)
 
 	m_TB_iconList = new QIconBar(this);
 	m_TB_iconList->setObjectName(QString::fromUtf8("m_TB_iconList"));
-	t_mainLayout->addWidget(m_TB_iconList, 4, 1, 1, 4);
 
-	m_TB_applyIconOrder = new QToolButton(this);
-	m_TB_applyIconOrder->setObjectName(QString::fromUtf8("m_TB_applyIconOrder"));
-	m_TB_applyIconOrder->setMinimumSize(QSize(50, 0));
+	t_mainLayout->addWidget(m_TB_iconList, 4, 1, 1, 5);
 
-	t_mainLayout->addWidget(m_TB_applyIconOrder, 4, 5, 1, 2);
+	QSpacerItem* t_horizontalSpacer2 = new QSpacerItem(409, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
+	t_mainLayout->addItem(t_horizontalSpacer2, 5, 0, 1, 4);
+
+	m_TB_apply = new QToolButton(this);
+	m_TB_apply->setObjectName(QString::fromUtf8("m_TB_apply"));
+	m_TB_apply->setMinimumSize(QSize(50, 0));
+
+	t_mainLayout->addWidget(m_TB_apply, 5, 4, 1, 2);
 	//--------------------------------------------
 	m_TB_open->setIcon(QIcon(":/icons/ico/open.png"));
 	m_TB_iconList->setHeight(24);
@@ -140,16 +128,13 @@ void QTrayToolSetupDialog::CreateControl(void)
 	QHeaderView* t_HorizontalHeader = m_TV_folder->horizontalHeader();
 	t_HorizontalHeader->resizeSection(0, 20);
 
-
 	m_NotifyIconMap = new QNotifyIconMap(this);
 	m_NotifyIconMap->init();
 	//--------------------------------------------
 	connect(m_TB_delete, SIGNAL(released()), this, SLOT(onDeleteReleased_slot()));
 	connect(m_TB_add, SIGNAL(released()), this, SLOT(onAddReleased_slot()));
 	connect(m_TB_modify, SIGNAL(released()), this, SLOT(onModifyReleased_slot()));
-	connect(m_TB_applyFilter, SIGNAL(released()), this, SLOT(onApplyFilterReleased_slot()));
-	connect(m_TB_applyFolder, SIGNAL(released()), this, SLOT(onApplyFolderReleased_slot()));
-	connect(m_TB_applyIconOrder, SIGNAL(released()), this, SLOT(onApplyIconOrderReleased_slot()));
+	connect(m_TB_apply, SIGNAL(released()), this, SLOT(onApplyReleased_slot()));
 	connect(m_TB_icon, SIGNAL(released()), this, SLOT(onIconReleased_slot()));
 	connect(m_TB_open, SIGNAL(released()), this, SLOT(onOpenReleased_slot()));
 	connect(m_CB_startup, SIGNAL(stateChanged(int)), this, SLOT(onStartupStateChanged(int)));
@@ -164,9 +149,7 @@ void QTrayToolSetupDialog::RetranslateUi(void)
 	m_TB_add->setText(tr("add"));
 	m_TB_modify->setText(tr("modify"));
 	m_LB_nameFilters->setText(tr("nameFilters"));
-	m_TB_applyFilter->setText(tr("apply"));
-	m_TB_applyFolder->setText(tr("apply"));
-	m_TB_applyIconOrder->setText(tr("apply"));
+	m_TB_apply->setText(tr("apply"));
 	m_CB_startup->setText(tr("AutoStartup"));
 	m_folderModel->setHeaderData(0, Qt::Horizontal, tr("Icon"), Qt::DisplayRole);
 	m_folderModel->setHeaderData(1, Qt::Horizontal, tr("Path"), Qt::DisplayRole);
@@ -175,7 +158,7 @@ PathCheck QTrayToolSetupDialog::checkPath(const QString& _Path)
 {
 	if (!QFileInfo(_Path).isDir())
 		return CheckInvalid;
-	if (m_paths.contains(_Path))
+	if (m_MenuSet.contains(_Path))
 		return CheckRepeat;
 	return CheckSuccess;
 }
@@ -184,11 +167,13 @@ void QTrayToolSetupDialog::clean(void)
 	m_folderModel->removeRows(0, m_folderModel->rowCount());
 	m_LE_path->setText("");
 	m_LE_path->setToolTip("");
-	m_paths.clear();
+	m_MenuSet.clear();
+	m_MenuInfoMap.clear();
 }
 void QTrayToolSetupDialog::setFilters(const QStringList& _filters)
 {
-	m_LE_fileFilters->setText(_filters.join(";"));
+	m_nameFilter = _filters.join(";");
+	m_LE_fileFilters->setText(m_nameFilter);
 }
 void QTrayToolSetupDialog::addFolder(const QString& _folder, const QPixmap& _icon)
 {
@@ -199,7 +184,8 @@ void QTrayToolSetupDialog::addFolder(const QString& _folder, const QPixmap& _ico
 	m_folderModel->setData(m_folderModel->index(t_RowCount, 0), _icon, Qt::UserRole);
 	m_folderModel->setData(m_folderModel->index(t_RowCount, 1), _folder, Qt::DisplayRole);
 	m_folderModel->setData(m_folderModel->index(t_RowCount, 1), _folder, Qt::UserRole);
-	m_paths.insert(_folder);
+	m_MenuSet.insert(_folder, TFolderInfo(_folder, _icon));
+	m_MenuInfoMap.insert(_folder, TFolderInfo(_folder, _icon));
 }
 void QTrayToolSetupDialog::isAutoStartup(bool _b)
 {
@@ -239,9 +225,9 @@ void QTrayToolSetupDialog::refreshAllTrayIcon(void)
 
 	QString t_appPath = QCoreApplication::applicationFilePath();
 	QSettings t_sNotifyIcon("HKEY_CURRENT_USER\\Control Panel\\NotifyIconSettings\\", QSettings::Registry64Format);
-	QByteArray t_baOrderList = QSettingReadBinary(t_sNotifyIcon, "UIOrderList");
-	for (int i = 0; i < t_baOrderList.size() / 8; ++i)
-		m_ulOrderList.append(*reinterpret_cast<quint64*>(t_baOrderList.data() + i * 8));
+	m_UIOrderList = QSettingReadBinary(t_sNotifyIcon, "UIOrderList");
+	for (int i = 0; i < m_UIOrderList.size() / 8; ++i)
+		m_ulOrderList.append(*reinterpret_cast<quint64*>(m_UIOrderList.data() + i * 8));
 
 	struct TTrayInfo
 	{
@@ -284,7 +270,7 @@ void QTrayToolSetupDialog::onDeleteReleased_slot()
 	QAbstractItemModel* t_Model = m_TV_folder->model();
 	QString t_oldPath = t_Model->data(t_Model->index(t_Row, 1), Qt::DisplayRole).toString();
 	t_Model->removeRow(t_Row);
-	m_paths.remove(t_oldPath);
+	m_MenuSet.remove(t_oldPath);
 }
 void QTrayToolSetupDialog::onAddReleased_slot()
 {
@@ -307,7 +293,7 @@ void QTrayToolSetupDialog::onAddReleased_slot()
 	m_folderModel->setData(m_folderModel->index(t_RowCount, 0), m_iconPixmap, Qt::UserRole);
 	m_folderModel->setData(m_folderModel->index(t_RowCount, 1), t_newPath, Qt::DisplayRole);
 	m_folderModel->setData(m_folderModel->index(t_RowCount, 1), t_newPath, Qt::UserRole);
-	m_paths.insert(t_newPath);
+	m_MenuSet.insert(t_newPath, TFolderInfo(t_newPath, m_iconPixmap));
 }
 void QTrayToolSetupDialog::onModifyReleased_slot()
 {
@@ -331,42 +317,33 @@ void QTrayToolSetupDialog::onModifyReleased_slot()
 	t_item->setIcon(m_iconPixmap);
 	t_Model->setData(t_Model->index(t_Row, 0), m_iconPixmap, Qt::UserRole);
 	t_Model->setData(t_Model->index(t_Row, 1), m_LE_path->text(), Qt::DisplayRole);
-	m_paths.remove(t_oldPath);
-	m_paths.insert(t_newPath);
+	m_MenuSet.remove(t_oldPath);
+	m_MenuSet.insert(t_newPath, TFolderInfo(t_newPath, m_iconPixmap));
 }
-void QTrayToolSetupDialog::onApplyFilterReleased_slot()
+void QTrayToolSetupDialog::onApplyReleased_slot(void)
 {
+	if (m_MenuSet != m_MenuInfoMap)
+		emit foldersChanged_signal(m_MenuSet);
+
 	QStringList t_filters = m_LE_fileFilters->text().split(QRegExp("[ ;,]"), Qt::SkipEmptyParts);
-	emit filtersChanged_signal(t_filters);
-}
-void QTrayToolSetupDialog::onApplyFolderReleased_slot(void)
-{
-	QMap<QString, TFolderInfo> t_folders;
-	for (int i = 0; i < m_folderModel->rowCount(); ++i)
-	{
-		QPixmap t_icon = m_folderModel->data(m_folderModel->index(i, 0), Qt::UserRole).value<QPixmap>();
-		QString t_newPath = m_folderModel->data(m_folderModel->index(i, 1), Qt::DisplayRole).toString();
-		QString t_OldPath = m_folderModel->data(m_folderModel->index(i, 1), Qt::UserRole).toString();
-		t_folders.insert(t_OldPath, TFolderInfo(t_newPath, t_icon));
-		m_folderModel->setData(m_folderModel->index(i, 1), t_newPath, Qt::UserRole);
-	}
-	emit foldersChanged_signal(t_folders);
-}
-void QTrayToolSetupDialog::onApplyIconOrderReleased_slot(void)
-{
+	QString t_nameFilter = t_filters.join(";");
+	if (t_nameFilter != m_nameFilter)
+		emit filtersChanged_signal(t_filters);
+
 	QByteArray t_baOrderList(m_ulOrderList.size() * 8, '\0');
 	for (int i = 0; i < m_ulOrderList.size(); ++i)
-	{
 		*reinterpret_cast<quint64*>(t_baOrderList.data() + i * 8) = m_ulOrderList[i];
-	}
-	regWriteBinary("Control Panel\\NotifyIconSettings\\", "UIOrderList", t_baOrderList);
-
-	for (quint64 t_id : m_ulDeletedOrderList)
+	if (t_baOrderList != m_UIOrderList)
 	{
-		QSettings t_sNotifyIcon("HKEY_CURRENT_USER\\Control Panel\\NotifyIconSettings\\", QSettings::Registry64Format);
-		t_sNotifyIcon.remove(QString::number(t_id));
+		regWriteBinary("Control Panel\\NotifyIconSettings\\", "UIOrderList", t_baOrderList);
+
+		for (quint64 t_id : m_ulDeletedOrderList)
+		{
+			QSettings t_sNotifyIcon("HKEY_CURRENT_USER\\Control Panel\\NotifyIconSettings\\", QSettings::Registry64Format);
+			t_sNotifyIcon.remove(QString::number(t_id));
+		}
+		QMessageBox::information(this, tr("information"), tr("need to restart the system to apply modifications!"));
 	}
-	QMessageBox::information(this, tr("information"), tr("need to restart the system to apply modifications!"));
 }
 static QString imageFilter()
 {
