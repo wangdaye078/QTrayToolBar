@@ -151,6 +151,7 @@ void QTrayToolSetupDialog::RetranslateUi(void)
 	m_LB_nameFilters->setText(tr("nameFilters"));
 	m_TB_apply->setText(tr("apply"));
 	m_CB_startup->setText(tr("AutoStartup"));
+	m_LE_fileFilters->setPlaceholderText("*.bak;*.tmp;*.log");
 	m_folderModel->setHeaderData(0, Qt::Horizontal, tr("Icon"), Qt::DisplayRole);
 	m_folderModel->setHeaderData(1, Qt::Horizontal, tr("Path"), Qt::DisplayRole);
 }
