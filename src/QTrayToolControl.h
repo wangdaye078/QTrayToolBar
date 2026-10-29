@@ -6,10 +6,10 @@
 //********************************************************************
 #ifndef QtTrayToolControl_h__
 #define QtTrayToolControl_h__
+#include "struct.h"
 #include <QObject>
 #include <QSystemTrayIcon>
 #include <QtDebug>
-#include "struct.h"
 class QTrayToolMenu;
 class QMenu;
 class QAction;
@@ -25,13 +25,15 @@ public:
 	TLnkFileEx() :TLnkFile(), action(NULL), menuParent(NULL), menu(NULL) {}
 	virtual ~TLnkFileEx() {
 	};
-	virtual TLnkFile* creatSub()
+	virtual TLnkFileBase* creatSub()
 	{
-		return new TLnkFileEx();
+		TLnkFileBase* t_p = new TLnkFileEx();
+		t_p->loadVer = loadVer;
+		return t_p;
 	}
 	void removeSubPath(const QString& _path)
 	{
-		for (QList<TLnkFile*>::iterator i = subLnk.begin(); i != subLnk.end(); ++i)
+		for (QList<TLnkFileBase*>::iterator i = subLnk.begin(); i != subLnk.end(); ++i)
 		{
 			if ((*i)->path == _path)
 			{
@@ -54,7 +56,7 @@ public:
 	const QString& getPath(void);
 	const QPixmap& getPixmap(void);
 	void reset(void);
-	void load(const QByteArray& _buff);
+	void load(const QByteArray& _buff, int _loadVer);
 	QByteArray toByteArray(void);
 	void RetranslateUi(void);
 private:
@@ -76,6 +78,7 @@ signals:
 	void lnkFileChanged_signal(void);
 private:
 	const QStringList* m_nameFilters;
+	QTransform m_transform;
 	QSystemTrayIcon* m_MainTrayIcon;
 	QTrayToolMenu* m_ToolMenu;
 	TLnkFileEx* m_mainLnkList;

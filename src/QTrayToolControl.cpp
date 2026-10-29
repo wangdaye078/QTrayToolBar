@@ -1,25 +1,25 @@
 #include "QTrayToolControl.h"
 #include <QApplication>
-#include <QSystemTrayIcon>
-#include <QFileSystemWatcher>
+#include <QBuffer>
 #include <QDesktopServices>
-#include <QMenu>
 #include <QDir>
 #include <QFileInfo>
-#include <QBuffer>
-#include <QUrl>
+#include <QFileSystemWatcher>
 #include <QMap>
+#include <QMenu>
+#include <QScreen>
 #include <QSet>
+#include <QSystemTrayIcon>
+#include <QUrl>
 
-
-#include "QTrayToolMenu.h"
-#include "lnkFileReader.h"
-#include "struct.h"
 #include "basicDefine.h"
+#include "lnkFileReader.h"
+#include "QTrayToolMenu.h"
+#include "struct.h"
 
 
 QTrayToolControl::QTrayToolControl(QObject* parent)
-	: QObject(parent), m_nameFilters(NULL)
+	: QObject(parent), m_nameFilters(NULL), m_transform(QTransform::fromScale(1 / qApp->primaryScreen()->devicePixelRatio(), 1 / qApp->primaryScreen()->devicePixelRatio()))
 {
 	m_MainTrayIcon = new QSystemTrayIcon(this);
 	m_ToolMenu = new QTrayToolMenu(NULL);
@@ -84,8 +84,9 @@ void QTrayToolControl::reset(void)
 	m_ToolMenu = new QTrayToolMenu(NULL);
 	m_mainLnkList = new TLnkFileEx();
 }
-void QTrayToolControl::load(const QByteArray& _buff)
+void QTrayToolControl::load(const QByteArray& _buff, int _loadVer)
 {
+	m_mainLnkList->loadVer = _loadVer;
 	QDataStream in(_buff);
 	in >> *m_mainLnkList;
 
@@ -130,7 +131,7 @@ bool QTrayToolControl::update(TLnkFileEx* _parent)
 	//创建新旧文件列表的集合，和用于快速定位的表
 	QSet<QString> t_oldPathSet;
 	QMap<QString, TLnkFileEx*> t_oldPath2Lnkfile;
-	for (TLnkFile* t_lnk : _parent->subLnk)
+	for (TLnkFileBase* t_lnk : _parent->subLnk)
 	{
 		t_oldPathSet.insert(t_lnk->path);
 		t_oldPath2Lnkfile.insert(t_lnk->path, static_cast<TLnkFileEx*>(t_lnk));
@@ -241,7 +242,7 @@ void QTrayToolControl::creadeToolMenu(TLnkFileEx* _LnkFile)
 	_LnkFile->menu->setLnkFile(_LnkFile);
 	_LnkFile->menu->setProperty("path", _LnkFile->path);
 	connect(_LnkFile->menu, SIGNAL(LnkFileChanged_signal()), this, SLOT(onLnkFileChanged_slot()));
-	for (TLnkFile* t_lnk : _LnkFile->subLnk)
+	for (TLnkFileBase* t_lnk : _LnkFile->subLnk)
 	{
 		TLnkFileEx* t_lnkEx = static_cast<TLnkFileEx*>(t_lnk);
 		createAction(_LnkFile->menu, t_lnkEx);
@@ -263,15 +264,18 @@ void QTrayToolControl::onSysTrayIconActivated_slot(QSystemTrayIcon::ActivationRe
 	switch (_reason) {
 	case QSystemTrayIcon::Trigger:
 	case QSystemTrayIcon::DoubleClick:
-	{
-		if (m_mainLnkList->subLnk.size() > 0)
 		{
-			QRect t_taskbarRect = getToolbarRect();
-			QSize t_hintSize = m_ToolMenu->sizeHint();
-			m_ToolMenu->popup(QPoint(QCursor::pos().x(), t_taskbarRect.y()) - QPoint(t_hintSize.width(), t_hintSize.height()));
+			if (m_mainLnkList->subLnk.size() > 0)
+			{
+				//因为getToolbarRect是调用windows函数获取的数据，这个数据是没有经过DPI缩放的，所以需要使用m_transform进行映射
+				QRect t_taskbarRect = m_transform.mapRect(getToolbarRect());
+				QSize t_hintSize = m_ToolMenu->sizeHint();
+				//Qt里面的这些位置坐标都经过了缩放，比如屏幕是5120*2160，2倍缩放，则屏幕的右下角坐标就是2560*1080
+				//popup参数坐标和QCursor::pos()取得的坐标都是经过缩放的，所以需要使用经过缩放的坐标来计算菜单的显示位置
+				m_ToolMenu->popup(QPoint(QCursor::pos().x(), t_taskbarRect.y()) - QPoint(t_hintSize.width(), t_hintSize.height()));
+			}
+			break;
 		}
-		break;
-	}
 	default:
 		;
 	}
